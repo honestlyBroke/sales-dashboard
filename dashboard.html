@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Executive Sales Report 2015-2017</title>
+    <link rel="stylesheet" href="style.css">
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+</head>
+<body>
+
+<div class="container">
+    <header class="control-header">
+        <div class="brand">
+            <h1>ORDER SALES DATA REPORT</h1>
+            <div class="subtitle">Executive Overview & Performance Metrics</div>
+        </div>
+        <div class="actions">
+            <button id="themeToggle" class="btn btn-outline btn-sm" title="Switch Theme">🌗</button>
+        </div>
+    </header>
+
+    <div class="filters-bar" id="filtersArea">
+        <div class="filter-row">
+            <div class="filter-group">
+                <label>Year</label>
+                <select id="yearFilter">
+                    <option value="all">2015-2017</option>
+                    <option value="2015">2015</option>
+                    <option value="2016">2016</option>
+                    <option value="2017">2017</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Region</label>
+                <select id="regionFilter">
+                    <option value="all">All Regions</option>
+                    <option value="East">East</option>
+                    <option value="West">West</option>
+                    <option value="Central">Central</option>
+                    <option value="South">South</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Segment</label>
+                <select id="segmentFilter">
+                    <option value="all">All Segments</option>
+                    <option value="Consumer">Consumer</option>
+                    <option value="Corporate">Corporate</option>
+                    <option value="Home Office">Home Office</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="filter-row sliders-row">
+            <div class="filter-group">
+                <label>Min Sales: <span id="minSalesVal" class="val-display">$0</span></label>
+                <input type="range" id="minSales" min="0" max="5000" step="50" value="0">
+            </div>
+            <div class="filter-group">
+                <label>Max Sales: <span id="maxSalesVal" class="val-display">$5000</span></label>
+                <input type="range" id="maxSales" min="0" max="5000" step="50" value="5000">
+            </div>
+            <div class="filter-group">
+                <label>Min Qty: <span id="qtyVal" class="val-display">1</span></label>
+                <input type="range" id="qtySlider" min="1" max="20" step="1" value="1">
+            </div>
+            <div class="filter-group">
+                <label>Max Disc: <span id="discVal" class="val-display">50%</span></label>
+                <input type="range" id="discSlider" min="0" max="50" step="5" value="50">
+            </div>
+        </div>
+    </div>
+
+    <div id="reportContent">
+        
+        <div class="report-header-block">
+            <h3>REPORT SUMMARY :-</h3>
+            <p>
+                This dataset summarizes corporate customer orders across various U.S. regions. 
+                The majority of purchases fall under Office Supplies, followed by Technology and Furniture. 
+                Standard Class is the most frequently used shipping mode. Overall, the data reflects consistent 
+                buying patterns with a strong concentration in office-related products.
+            </p>
+        </div>
+
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-title">TOTAL SALES</div>
+                <div class="kpi-value" id="kpiSales">$0</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-title">TOTAL QUANTITY</div>
+                <div class="kpi-value" id="kpiCount">0</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-title">AVG DISCOUNT</div>
+                <div class="kpi-value" id="kpiDiscount">0%</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-title">TOTAL PROFIT</div>
+                <div class="kpi-value" id="kpiProfit">$0</div>
+            </div>
+        </div>
+
+        <div class="charts-grid">
+            <div class="chart-card span-8">
+                <h3>Sales Trend (Revenue over Time)</h3>
+                <div class="chart-container">
+                    <canvas id="trendChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-card span-4">
+                <h3>Category Split</h3>
+                <div class="chart-container">
+                    <canvas id="categoryChart"></canvas>
+                </div>
+            </div>
+
+            <div class="chart-card span-4">
+                <h3>Customer Segments</h3>
+                <div class="chart-container">
+                     <canvas id="segmentChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-card span-8">
+                <h3>Regional Performance (Stacked)</h3>
+                <div class="chart-container">
+                    <canvas id="stackedChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="chart-card span-12">
+                <h3>Profitability by Sub-Category</h3>
+                <div class="chart-container">
+                    <canvas id="profitChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="tables-grid">
+            <div class="table-card">
+                <h3>Top 5 Customers</h3>
+                <div class="table-responsive">
+                    <table id="topCustTable">
+                        <thead>
+                            <tr><th>Customer</th><th class="text-right">Sales</th><th class="text-right">Profit</th></tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="table-card">
+                <h3>Regional Summary</h3>
+                <div class="table-responsive">
+                    <table id="regionTable">
+                        <thead>
+                            <tr><th>Region</th><th class="text-right">Sales</th><th class="text-right">Margin</th></tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="table-card">
+                <h3>Recent Transactions</h3>
+                <div class="table-responsive">
+                    <table id="recentTable">
+                        <thead>
+                            <tr><th>Date</th><th>ID</th><th class="text-right">Value</th></tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <div class="report-footer">
+            <strong>CONCLUDE:</strong> 
+            Data indicates strong profitability in Technology despite lower volume compared to Office Supplies. 
+            Discounts above 40% are the primary driver of negative margins in the Corporate segment.
+        </div>
+    </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
